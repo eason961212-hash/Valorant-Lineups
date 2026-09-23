@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VALORANT Lineup Database - 專業戰術庫</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background-color: #0f1923;
+            color: #ece8e1;
+            margin: 0;
+            padding: 20px;
+        }
+        header {
+            text-align: center;
+            padding: 30px 0;
+            border-bottom: 2px solid #ff4655;
+            margin-bottom: 20px;
+            background: linear-gradient(to bottom, #16222a, #0f1923);
+            border-radius: 8px;
+        }
+        h1 {
+            color: #ff4655;
+            margin: 0;
+            font-size: 32px;
+            letter-spacing: 2px;
+        }
+        p {
+            color: #8b9bb4;
+        }
+        /* 麵包屑導航列 */
+        .breadcrumb {
+            background-color: #161b22;
+            border: 1px solid #30363d;
+            padding: 12px 20px;
+            border-radius: 6px;
+            margin-bottom: 30px;
+            font-size: 15px;
+        }
+        .breadcrumb span {
+            color: #ff4655;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .breadcrumb span:hover {
+            text-decoration: underline;
+        }
+        .breadcrumb-separator {
+            color: #8b9bb4;
+            margin: 0 8px;
+        }
+        /* 選單按鈕區 */
+        .menu-container {
+            text-align: center;
+            margin: 40px 0;
+        }
+        .menu-title {
+            color: #ff4655;
+            font-size: 24px;
+            margin-bottom: 25px;
+        }
+        .choice-btn {
+            background-color: #1f2326;
+            color: #ece8e1;
+            border: 1px solid #383e42;
+            padding: 14px 28px;
+            margin: 8px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            display: inline-block;
+        }
+        .choice-btn:hover {
+            border-color: #ff4655;
+            color: #ff4655;
+            background-color: #252d37;
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(255, 70, 85, 0.3);
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        /* 卡片設計 */
+        .card {
+            background-color: #161b22;
+            border: 1px solid #30363d;
+            border-left: 4px solid #ff4655;
+            border-radius: 6px;
+            padding: 24px;
+            margin-bottom: 25px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.4);
+        }
+        .card h3 {
+            color: #ece8e1;
+            margin-top: 0;
+            font-size: 20px;
+            margin-bottom: 15px;
+        }
+        .hierarchy-tag {
+            display: inline-block;
+            background-color: rgba(255, 70, 85, 0.15);
+            color: #ff4655;
+            border: 1px solid #ff4655;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-bottom: 12px;
+        }
+        .card-body {
+            display: flex;
+            gap: 24px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .card-text {
+            flex: 1;
+            min-width: 280px;
+        }
+        .card-video {
+            flex: 1;
+            min-width: 280px;
+        }
+        .card-video video {
+            width: 100%;
+            border-radius: 6px;
+            border: 1px solid #383e42;
+            outline: none;
+            background-color: #000;
+        }
+        .details {
+            line-height: 1.8;
+            font-size: 15px;
+        }
+        /* 頁面切換控制 */
+        .step-view {
+            display: none;
+        }
+        .step-view.active-view {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <h1>VALORANT Lineup Database</h1>
+            <p>2026 冠軍賽官方地圖池 | 選擇地圖 ➔ 陣營 ➔ 定位 ➔ 角色</p>
+        </header>
+
+        <!-- 麵包屑導航列 -->
+        <div class="breadcrumb" id="breadcrumb-bar">
+            <span>選擇地圖</span>
+        </div>
+
+        <!-- ==================== 步驟 0：選擇地圖 (7張賽事地圖) ==================== -->
+        <div id="view-map" class="step-view active-view">
+            <div class="menu-container">
+                <div class="menu-title">🗺️ 請選擇 Champions 賽事地圖</div>
+                <button class="choice-btn" onclick="selectMap('abyss')">🕳️ Abyss (深窟幽境)</button>
+                <button class="choice-btn" onclick="selectMap('haven')">🏰 Haven (意境空島)</button>
+                <button class="choice-btn" onclick="selectMap('breeze')">🏖️ Breeze (遺落境地)</button>
+                <button class="choice-btn" onclick="selectMap('lotus')">🪷 Lotus (蓮華古城)</button>
+                <button class="choice-btn" onclick="selectMap('bind')">🌀 Bind (雙塔迷城)</button>
+                <button class="choice-btn" onclick="selectMap('summit')">⛰️ Summit (頂峰亭閣)</button>
+                <button class="choice-btn" onclick="selectMap('sunset')">🌇 Sunset (日落之城)</button>
+            </div>
+        </div>
+
+        <!-- ==================== 步驟 1：選擇陣營 ==================== -->
+        <div id="view-side" class="step-view">
+            <div class="menu-container">
+                <div class="menu-title">請選擇對戰陣營</div>
+                <button class="choice-btn" onclick="selectSide('attack')">⚔️ 進攻方 (Attack)</button>
+                <button class="choice-btn" onclick="selectSide('defense')">🛡️ 防守方 (Defense)</button>
+            </div>
+        </div>
+
+        <!-- ==================== 步驟 2：選擇定位 ==================== -->
+        <div id="view-role" class="step-view">
+            <div class="menu-container">
+                <div class="menu-title">請選擇英雄定位</div>
+                <div id="role-buttons"></div>
+            </div>
+        </div>
+
+        <!-- ==================== 步驟 3：選擇角色 ==================== -->
+        <div id="view-agent" class="step-view">
+            <div class="menu-container">
+                <div class="menu-title">請選擇角色</div>
+                <div id="agent-buttons"></div>
+            </div>
+        </div>
+
+        <!-- ==================== 步驟 4：顯示卡片 ==================== -->
+        <div id="view-cards" class="step-view">
+            <div id="cards-container"></div>
+        </div>
+
+    </div>
+
+    <!-- 邏輯 Script -->
+    <script>
+        // 完整的 7 張地圖資料庫結構
+        const db = {
+            abyss: {
+                name: "Abyss (深窟幽境)",
+                sides: {
+                    attack: { name: "進攻方", roles: {} },
+                    defense: { name: "防守方", roles: {} }
+                }
+            },
+            haven: {
+                name: "Haven (意境空島)",
+                sides: {
+                    attack: {
+                        name: "進攻方",
+                        roles: {
+                            initiator: {
+                                name: "⚡ 先鋒 (Initiator)",
+                                agents: {
+                                    sova: {
+                                        name: "Sova (蘇法)",
+                                        cards: [
+                                            {
+                                                title: "A 區進攻：A大開局直射 A 點包點偵查",
+                                                standing: "A Lobby 牆角緊貼木箱",
+                                                aim: "對準屋頂上方第二片瓦片的邊緣",
+                                                power: "2 格彈跳 + 左鍵",
+                                                effect: "開局直接掃到防守方在 A 點網站的初始站位。",
+                                                video: "sova-a.mp4"
+                                            }
+                                        ]
+                                    },
+                                    fade: {
+                                        name: "Fade (菲德)",
+                                        cards: [
+                                            {
+                                                title: "B 區進攻：中路直通眼球（打出情報）",
+                                                standing: "中路庭院牆壁",
+                                                aim: "對準上方窗戶框線",
+                                                power: "直接左鍵投擲",
+                                                effect: "瞬間標記 B 點連接處的防守敵人。",
+                                                video: "fade-b.mp4"
+                                            }
+                                        ]
+                                    }
+                                }
+                            },
+                            controller: {
+                                name: "🐍 煙位 (Controller)",
+                                agents: {
+                                    omen: {
+                                        name: "Omen (歐門)",
+                                        cards: [
+                                            {
+                                                title: "A 區進攻：A 點天堂（Heaven）遮蔽暗影",
+                                                standing: "A Lobby 安全掩體後",
+                                                aim: "盲目放置於 A 點天堂樓梯口",
+                                                power: "切斷防守方在天堂的交叉火力",
+                                                effect: "讓隊友能夠無壓力拉進 A 點包點。",
+                                                video: "omen-a.mp4"
+                                            }
+                                        ]
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    defense: {
+                        name: "防守方",
+                        roles: {
+                            controller: {
+                                name: "🐍 煙位 (Controller)",
+                                agents: {
+                                    viper: {
+                                        name: "Viper (薇蝮)",
+                                        cards: [
+                                            {
+                                                title: "C 區防守：C長廊單向煙（One-Way）",
+                                                standing: "C Garage 內部箱子後方",
+                                                aim: "準心對準門框上方的金屬燈泡底座",
+                                                power: "原地右鍵輕拋",
+                                                effect: "敵人進攻 C 長廊時只能看到腳，你卻能看到他們的頭。",
+                                                video: "viper-c.mp4"
+                                            }
+                                        ]
+                                    }
+                                }
+                            },
+                            sentinel: {
+                                name: "🛡️ 守衛 (Sentinel)",
+                                agents: {
+                                    cypher: {
+                                        name: "Cypher (瑟符)",
+                                        cards: [
+                                            {
+                                                title: "B 區防守：中路隱形特務攝影機與陷阱",
+                                                standing: "B Window 內部牆面",
+                                                aim: "將相機黏在高處牆壁邊緣，並拉一條隱形威線",
+                                                power: "監控中路與 B 區動向",
+                                                effect: "提供全隊最完整的資訊與緩速控制。",
+                                                video: "cypher-b.mp4"
+                                            }
+                                        ]
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            breeze: {
+                name: "Breeze (遺落境地)",
+                sides: {
+                    attack: { name: "進攻方", roles: {} },
+                    defense: { name: "防守方", roles: {} }
+                }
+            },
+            lotus: {
+                name: "Lotus (蓮華古城)",
+                sides: {
+                    attack: { name: "進攻方", roles: {} },
+                    defense: { name: "防守方", roles: {} }
+                }
+            },
+            bind: {
+                name: "Bind (雙塔迷城)",
+                sides: {
+                    attack: { name: "進攻方", roles: {} },
+                    defense: { name: "防守方", roles: {} }
+                }
+            },
+            summit: {
+                name: "Summit (頂峰亭閣)",
+                sides: {
+                    attack: { name: "進攻方", roles: {} },
+                    defense: { name: "防守方", roles: {} }
+                }
+            },
+            sunset: {
+                name: "Sunset (日落之城)",
+                sides: {
+                    attack: { name: "進攻方", roles: {} },
+                    defense: { name: "防守方", roles: {} }
+                }
+            }
+        };
+
+        let currentMap = null;
+        let currentSide = null;
+        let currentRole = null;
+        let currentAgent = null;
+
+        function selectMap(mapId) {
+            currentMap = mapId;
+            currentSide = null;
+            currentRole = null;
+            currentAgent = null;
+            switchView("view-side");
+            updateBreadcrumb();
+        }
+
+        function selectSide(side) {
+            currentSide = side;
+            currentRole = null;
+            currentAgent = null;
+
+            let roleButtonsHtml = "";
+            let roles = db[currentMap].sides[side].roles;
+            
+            if (!roles || Object.keys(roles).length === 0) {
+                roleButtonsHtml = "<p style='color: #8b9bb4; font-size: 16px; margin-top: 20px;'>此地圖此陣營目前尚無登錄 Lineup，隨時可以擴充！</p>";
+            } else {
+                for (let roleKey in roles) {
+                    roleButtonsHtml += `<button class="choice-btn" onclick="selectRole('${roleKey}')">${roles[roleKey].name}</button>`;
+                }
+            }
+            document.getElementById("role-buttons").innerHTML = roleButtonsHtml;
+
+            switchView("view-role");
+            updateBreadcrumb();
+        }
+
+        function selectRole(roleKey) {
+            currentRole = roleKey;
+            currentAgent = null;
+
+            let agentButtonsHtml = "";
+            let agents = db[currentMap].sides[currentSide].roles[roleKey].agents;
+            for (let agentKey in agents) {
+                agentButtonsHtml += `<button class="choice-btn" onclick="selectAgent('${agentKey}')">${agents[agentKey].name}</button>`;
+            }
+            document.getElementById("agent-buttons").innerHTML = agentButtonsHtml;
+
+            switchView("view-agent");
+            updateBreadcrumb();
+        }
+
+        function selectAgent(agentKey) {
+            currentAgent = agentKey;
+
+            let agentData = db[currentMap].sides[currentSide].roles[currentRole].agents[agentKey];
+            let cardsHtml = `<h2 style="color: #ff4655; border-bottom: 2px solid #ff4655; padding-bottom: 10px; margin-bottom: 30px;">🎯 ${agentData.name} - 戰術 Lineup</h2>`;
+
+            agentData.cards.forEach(card => {
+                cardsHtml += `
+                    <div class="card">
+                        <span class="hierarchy-tag">${db[currentMap].name} ➔ ${db[currentMap].sides[currentSide].name} ➔ ${db[currentMap].sides[currentSide].roles[currentRole].name} ➔ ${agentData.name}</span>
+                        <h3>${card.title}</h3>
+                        <div class="card-body">
+                            <div class="card-text">
+                                <div class="details">
+                                    <p><b>📍 站位：</b> ${card.standing}</p>
+                                    <p><b>🎯 瞄準點：</b> ${card.aim}</p>
+                                    <p><b>⚡ 核心機制：</b> ${card.power}</p>
+                                    <p><b>💡 效果：</b> ${card.effect}</p>
+                                </div>
+                            </div>
+                            <div class="card-video">
+                                <video controls>
+                                    <source src="${card.video}" type="video/mp4">
+                                    您的瀏覽器不支援影片播放
+                                </video>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            document.getElementById("cards-container").innerHTML = cardsHtml;
+            switchView("view-cards");
+            updateBreadcrumb();
+        }
+
+        function switchView(viewId) {
+            let views = document.getElementsByClassName("step-view");
+            for (let v of views) {
+                v.classList.remove("active-view");
+            }
+            document.getElementById(viewId).classList.add("active-view");
+        }
+
+        function updateBreadcrumb() {
+            let html = `<span onclick="resetToMap()">選擇地圖</span>`;
+            
+            if (currentMap) {
+                html += `<span class="breadcrumb-separator">/</span><span onclick="resetToSide()">${db[currentMap].name}</span>`;
+            }
+            if (currentSide) {
+                let sideName = db[currentMap].sides[currentSide].name;
+                html += `<span class="breadcrumb-separator">/</span><span onclick="resetToRole()">${sideName}</span>`;
+            }
+            if (currentRole) {
+                let roleName = db[currentMap].sides[currentSide].roles[currentRole].name;
+                html += `<span class="breadcrumb-separator">/</span><span onclick="resetToAgent()">${roleName}</span>`;
+            }
+            if (currentAgent) {
+                let agentName = db[currentMap].sides[currentSide].roles[currentRole].agents[agentAgent].name; // Fixed bug reference if any, wait, currentAgent
+                let aName = db[currentMap].sides[currentSide].roles[currentRole].agents[currentAgent].name;
+                html += `<span class="breadcrumb-separator">/</span><span style="color: #ece8e1; cursor: default;">${aName}</span>`;
+            }
+
+            document.getElementById("breadcrumb-bar").innerHTML = html;
+        }
+
+        function resetToMap() {
+            currentMap = null;
+            currentSide = null;
+            currentRole = null;
+            currentAgent = null;
+            switchView("view-map");
+            updateBreadcrumb();
+        }
+
+        function resetToSide() {
+            currentSide = null;
+            currentRole = null;
+            currentAgent = null;
+            selectMap(currentMap);
+        }
+
+        function resetToRole() {
+            currentRole = null;
+            currentAgent = null;
+            selectSide(currentSide);
+        }
+
+        function resetToAgent() {
+            currentAgent = null;
+            selectRole(currentRole);
+        }
+
+        updateBreadcrumb();
+    </script>
+
+</body>
+</html>
